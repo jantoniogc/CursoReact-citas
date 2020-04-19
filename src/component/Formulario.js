@@ -1,42 +1,109 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import PropTypes from 'prop-types';
 
-const Formulario = () => {
+const Formulario = ({ crearCita }) => {
+
+    // Crear State de Citas
+    const [cita, actualizarCita] = useState({
+        mascota: '',
+        propietario: '',
+        fecha: '',
+        hora: '',
+        sintomas: ''
+    });
+
+    const [error, seterror] = useState(false)
+
+    // Funcion que ejecuta cuando usuario escribe
+    const actualizarState = (e) => {
+        actualizarCita({
+            ...cita,
+            [e.target.name]: e.target.value
+        });
+    }
+    // Extraemos valores del State
+    const { mascota, propietario, fecha, hora, sintomas } = cita;
+
+    // Cuando usuario presiona agregar cita
+    const submitCita = (e) => {
+        e.preventDefault();
+        // Validar formulario
+        if (mascota.trim() === '' || propietario.trim() === '' ||
+            fecha.trim() === '' || hora.trim() === '' || sintomas.trim() === '') {
+            seterror(true);
+            return;
+        }
+        seterror(false);
+
+        // Asignar un ID
+        cita.id = uuidv4();
+        // Crear la Cita
+        crearCita(cita);
+
+        // Reiniciar Form
+        actualizarCita({
+            mascota: '',
+            propietario: '',
+            fecha: '',
+            hora: '',
+            sintomas: ''
+        })
+    }
+
     return (
         <Fragment>
             <h2>Crear Cita</h2>
-            <form>
+            {error ? <p className="alerta-error">Todos los campos son obligatorios</p> : null}
+            <form
+                onSubmit={submitCita}
+            >
                 <label>Nombre Mascota</label>
                 <input
                     type="text"
                     name="mascota"
                     className="u-full-width"
-                    placeholder="Nombre mascota"></input>
+                    placeholder="Nombre mascota"
+                    onChange={actualizarState}
+                    value={mascota}></input>
                 <label>Nombre Dueño</label>
                 <input
                     type="text"
                     name="propietario"
                     className="u-full-width"
-                    placeholder="Nombre dueño de la mascota"></input>
+                    placeholder="Nombre dueño de la mascota"
+                    onChange={actualizarState}
+                    value={propietario}></input>
                 <label>Fecha</label>
                 <input
                     type="date"
                     name="fecha"
-                    className="u-full-width"></input>
+                    className="u-full-width"
+                    onChange={actualizarState}
+                    value={fecha}></input>
                 <label>Horar</label>
                 <input
                     type="time"
                     name="hora"
-                    className="u-full-width"></input>
+                    className="u-full-width"
+                    onChange={actualizarState}
+                    value={hora}></input>
                 <label>Sintomas</label>
                 <textarea
                     name="sintomas"
-                    className="u-full-width"></textarea>
+                    className="u-full-width"
+                    onChange={actualizarState}
+                    value={sintomas}></textarea>
                 <button
-                    type="button"
+                    type="submit"
                     className="u-full-width button-primary">Agregar Cita</button>
             </form>
         </Fragment>
     );
+}
+
+Formulario.propTypes = {
+    crearCita: PropTypes.func.isRequired
 }
 
 export default Formulario;
